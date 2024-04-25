@@ -64,6 +64,17 @@ function reload_camera(){
   exit 0
 }
 
+function git_push_changed(){
+  dts=$(date)
+  echo -e "Info: Push backup files to specified git server ..."
+  /opt/bin/find /usr/data/printer_data -ctime -1 -name '*.cfg' -not -path '*/printer-[0-9]*' -exec  cp -f {} /root/k1_max_config_backup/config \; -exec ls -l {} \;
+  cd /root/k1_max_config_backup
+  /usr/bin/git add .
+  /usr/bin/git commit -m "auto commit latest updates on $dts"
+  /usr/bin/git push
+  exit 0
+}
+
 if [ "$1" == "-backup_klipper" ]; then
   backup_klipper
 elif [ "$1" == "-restore_klipper" ]; then
@@ -74,7 +85,9 @@ elif [ "$1" == "-restore_moonraker" ]; then
   restore_moonraker
 elif [ "$1" == "-reload_camera" ]; then
   reload_camera
+elif [ "$1" == "-git_push_changed" ]; then
+  git_push_changed
 else
-  echo -e "Invalid argument. Usage: $0 [-backup_klipper | -restore_klipper | -backup_moonraker | -restore_moonraker | -reload_camera]"
+  echo -e "Invalid argument. Usage: $0 [-backup_klipper | -restore_klipper | -backup_moonraker | -restore_moonraker | -reload_camera | -git_push_changed]"
   exit 1
 fi
